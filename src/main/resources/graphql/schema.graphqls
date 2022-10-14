@@ -1,0 +1,28 @@
+type Query {
+    porteMonnaies:[PortMonnaie]
+}
+
+type PortMonnaie {
+    id:String,
+    solde:Float,
+    dateCreation :Float,
+    idUtilisateur:String,
+    devise :Devise,
+    porteMonnaieTransaction : [PorteMonnaieTransaction]
+
+}
+
+type PorteMonnaieTransaction {
+    id:String,
+    dateTransaction:Float,
+    montantTransaction:Float,
+    typeTransaction:String
+}
+
+type Devise {
+    code:String,
+    name:String,
+    symbol:String,
+    prixAchat:Float,
+    prixVente:Float
+}
