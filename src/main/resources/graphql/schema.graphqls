@@ -1,8 +1,9 @@
 type Query {
-    porteMonnaies:[PortMonnaie]
+    porteMonnaies:[PorteMonnaie],
+    porteMonnaieById(id:String):PorteMonnaie
 }
 
-type PortMonnaie {
+type PorteMonnaie {
     id:String,
     solde:Float,
     dateCreation :Float,
