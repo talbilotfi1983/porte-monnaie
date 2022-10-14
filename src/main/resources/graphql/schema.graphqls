@@ -1,6 +1,14 @@
 type Query {
     porteMonnaies:[PorteMonnaie],
-    porteMonnaieById(id:String):PorteMonnaie
+    porteMonnaieById(id:String):PorteMonnaie,
+}
+type Mutation{
+    ajoutMonnaie(porteMonnaie:PorteMonnaieDto):PorteMonnaie
+}
+input PorteMonnaieDto {
+    deviseCode:String,
+    solde:Float,
+    idUtilisateur:String
 }
 
 type PorteMonnaie {
@@ -10,7 +18,6 @@ type PorteMonnaie {
     idUtilisateur:String,
     devise :Devise,
     porteMonnaieTransaction : [PorteMonnaieTransaction]
-
 }
 
 type PorteMonnaieTransaction {
