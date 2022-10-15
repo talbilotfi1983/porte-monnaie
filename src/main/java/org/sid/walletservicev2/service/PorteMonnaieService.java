@@ -16,8 +16,11 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Array;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
 @Service
 @Transactional
 public class PorteMonnaieService {
@@ -46,7 +49,7 @@ public class PorteMonnaieService {
                     .build();
             this.deviseRepository.save(devise);
         }
-        deviseRepository.findAll().forEach(d->{
+        deviseRepository.findAll().forEach(d -> {
             Devise devise = deviseRepository.findById(d.getCode()).orElseThrow(RuntimeException::new);
             PorteMonnaie porteMonnaie = PorteMonnaie
                     .builder()
@@ -72,7 +75,7 @@ public class PorteMonnaieService {
 
             // le credit
 
-             porteMonnaieTransaction =
+            porteMonnaieTransaction =
                     PorteMonnaieTransaction
                             .builder()
                             .id(UUID.randomUUID().toString())
@@ -86,5 +89,34 @@ public class PorteMonnaieService {
             porteMonnaieRepository.save(porteMonnaie);
         });
 
+    }
+
+    public List<PorteMonnaieTransaction> transfert(String idPorteMonnaieSource, String idPorteMonnaieDestination, Double montantTransaction) {
+        PorteMonnaie porteMonnaieSource = porteMonnaieRepository.findById(idPorteMonnaieSource)
+                .orElseThrow(() -> new RuntimeException(String.format("Porte monnie %s not fount", idPorteMonnaieSource)));
+        PorteMonnaie porteMonnaieDestination = porteMonnaieRepository.findById(idPorteMonnaieDestination)
+                .orElseThrow(() -> new RuntimeException(String.format("Porte monnie %s not fount", idPorteMonnaieDestination)));
+        PorteMonnaieTransaction porteMonnaieTransactionSource = PorteMonnaieTransaction
+                .builder()
+                .porteMonnaie(porteMonnaieSource)
+                .dateTransaction(System.currentTimeMillis())
+                .id(UUID.randomUUID().toString())
+                .typeTransaction(TypeTransaction.DEBIT)
+                .montantTransaction(montantTransaction)
+                .build();
+        porteMonnaieTransactionRepository.save(porteMonnaieTransactionSource);
+        porteMonnaieSource.setSolde(porteMonnaieSource.getSolde() - montantTransaction);
+        Double montantTransactionConvertie = montantTransaction * (porteMonnaieDestination.getDevise().getPrixAchat() / porteMonnaieSource.getDevise().getPrixVente());
+        PorteMonnaieTransaction porteMonnaieTransactionDestination = PorteMonnaieTransaction
+                .builder()
+                .porteMonnaie(porteMonnaieDestination)
+                .dateTransaction(System.currentTimeMillis())
+                .id(UUID.randomUUID().toString())
+                .typeTransaction(TypeTransaction.CREDIT)
+                .montantTransaction(montantTransactionConvertie)
+                .build();
+        porteMonnaieDestination.setSolde(porteMonnaieSource.getSolde() + montantTransactionConvertie);
+        porteMonnaieTransactionRepository.save(porteMonnaieTransactionDestination);
+        return Arrays.asList(porteMonnaieTransactionSource, porteMonnaieTransactionDestination);
     }
 }

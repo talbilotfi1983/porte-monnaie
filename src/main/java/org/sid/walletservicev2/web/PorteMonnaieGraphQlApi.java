@@ -2,9 +2,11 @@ package org.sid.walletservicev2.web;
 
 import org.sid.walletservicev2.entities.Devise;
 import org.sid.walletservicev2.entities.PorteMonnaie;
-import org.sid.walletservicev2.entities.enums.PorteMonnaieDto;
+import org.sid.walletservicev2.entities.PorteMonnaieTransaction;
+import org.sid.walletservicev2.entities.dto.PorteMonnaieDto;
 import org.sid.walletservicev2.repositories.DeviseRepository;
 import org.sid.walletservicev2.repositories.PorteMonnaieRepository;
+import org.sid.walletservicev2.service.PorteMonnaieService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -17,10 +19,12 @@ import java.util.UUID;
 public class PorteMonnaieGraphQlApi {
     private PorteMonnaieRepository porteMonnaieRepository;
     private DeviseRepository deviseRepository;
+    private PorteMonnaieService porteMonnaieService;
 
-    public PorteMonnaieGraphQlApi(PorteMonnaieRepository porteMonnaieRepository, DeviseRepository deviseRepository) {
+    public PorteMonnaieGraphQlApi(PorteMonnaieRepository porteMonnaieRepository, DeviseRepository deviseRepository, PorteMonnaieService porteMonnaieService) {
         this.porteMonnaieRepository = porteMonnaieRepository;
         this.deviseRepository = deviseRepository;
+        this.porteMonnaieService = porteMonnaieService;
     }
 
     @QueryMapping
@@ -42,7 +46,6 @@ public class PorteMonnaieGraphQlApi {
                 .orElseThrow(() ->
                         new RuntimeException(String.format("Devise code %s not found",
                                 porteMonnaie.getDeviseCode())));
-        System.out.println(devise);
         return porteMonnaieRepository.save(PorteMonnaie
                 .builder()
                 .id(UUID.randomUUID().toString())
@@ -52,5 +55,13 @@ public class PorteMonnaieGraphQlApi {
                 .devise(devise)
                 .build());
 
+    }
+
+    @MutationMapping
+    public List<PorteMonnaieTransaction> transfert(@Argument String idPorteMonnaieSource,
+                                                   @Argument String idPorteMonnaiedestination,
+                                                   @Argument Double montantTransaction
+    ) {
+        return porteMonnaieService.transfert(idPorteMonnaieSource, idPorteMonnaiedestination, montantTransaction);
     }
 }

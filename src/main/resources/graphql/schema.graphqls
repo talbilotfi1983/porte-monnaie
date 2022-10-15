@@ -3,7 +3,8 @@ type Query {
     porteMonnaieById(id:String):PorteMonnaie,
 }
 type Mutation{
-    ajoutMonnaie(porteMonnaie:PorteMonnaieDto):PorteMonnaie
+    ajoutMonnaie(porteMonnaie:PorteMonnaieDto):PorteMonnaie,
+    transfert(idPorteMonnaieSource:String,idPorteMonnaiedestination:String,montantTransaction:Float):[PorteMonnaieTransaction]
 }
 input PorteMonnaieDto {
     deviseCode:String,

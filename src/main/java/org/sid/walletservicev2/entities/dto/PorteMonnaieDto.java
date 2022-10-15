@@ -1,4 +1,4 @@
-package org.sid.walletservicev2.entities.enums;
+package org.sid.walletservicev2.entities.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
